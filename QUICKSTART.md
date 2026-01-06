@@ -86,17 +86,16 @@ print(response.json()["image_url"])
 复制 `.env.example` 为 `.env` 并修改：
 
 ```env
-MODEL_BASE_DIR=models           # 模型存储位置
-OUTPUT_DIR=generated_images     # 图片输出位置
-USE_INT4_COMPRESSION=true       # 使用 INT4 压缩
-DEVICE=CPU                      # 或 GPU
+MODEL_PATH=models/Z-Image-Turbo/INT4  # OpenVINO 模型路径
+OUTPUT_DIR=generated_images            # 图片输出位置
+DEVICE=CPU                             # 或 GPU
 ```
 
 ## 常见问题
 
 ### 模型在哪里？
 - 默认位置：`项目根目录/models/Z-Image-Turbo/INT4/`
-- 可通过 `MODEL_BASE_DIR` 环境变量修改
+- 可通过 `MODEL_PATH` 环境变量修改
 
 ### 如何使用 GPU？
 ```env
@@ -111,13 +110,13 @@ python package.py --skip-models
 
 ### 切换 FP16 精度？
 ```env
-USE_INT4_COMPRESSION=false
+MODEL_PATH=models/Z-Image-Turbo/FP16
 ```
-然后删除 `models/Z-Image-Turbo/INT4/` 目录并重启。
+确保你已有对应的 FP16 模型文件，然后重启服务。
 
 ## 性能参考
 
-- 首次启动：10-30 分钟（模型转换）
+- 首次启动：10-30 秒（加载模型）
 - 后续启动：10-30 秒
 - 单张图片生成：5-15 秒（CPU），1-3 秒（GPU）
 - 内存占用：8-16GB（INT4），16-32GB（FP16）

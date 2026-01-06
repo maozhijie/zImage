@@ -109,8 +109,8 @@ Create a `.env` file in the project root to customize settings:
 
 ```env
 # 模型设置
-MODEL_ID=Tongyi-MAI/Z-Image-Turbo
-MODEL_BASE_DIR=models
+# 直接指定 OpenVINO 模型的路径
+MODEL_PATH=models/Z-Image-Turbo/INT4
 # API settings
 DEVICE=CPU
 
@@ -398,27 +398,23 @@ The model conversion happens automatically on first run. If you want to manually
 
 1. **Delete the model directory**:
 
-## 模型转换
+## 模型切换
 
-rm -rf models/Z-Image-Turbo/INT4 # or models/Z-Image-Turbo/FP16
-模型转换在首次运行时自动发生。如果您想手动触发转换或在 INT4 和 FP16 之间切换：
+如果您想在 INT4 和 FP16 模型之间切换：
 
-2. **Update configuration** in `.env`:
+1. **确保您已有对应的模型文件**（INT4 或 FP16）
 
-   USE_INT4_COMPRESSION=false # for FP16
-   rm -rf models/Z-Image-Turbo/INT4 # 或 models/Z-Image-Turbo/FP16
-
-   ```
-
-   ```
-
-3. **Restart the server**:
-4. **更新配置**（在 `.env` 中）：
+2. **更新配置** 在 `.env` 中：
 
    ```env
-   USE_INT4_COMPRESSION=false  # 使用 FP16
-   **Note**: Models are stored in the `models/` directory within the project root, making it easy to package and deploy.
+   # 使用 INT4
+   MODEL_PATH=models/Z-Image-Turbo/INT4
+
+   # 或使用 FP16
+   MODEL_PATH=models/Z-Image-Turbo/FP16
    ```
+
+3. **重启服务**
 
 ## Performance Tips
 
@@ -431,17 +427,19 @@ rm -rf models/Z-Image-Turbo/INT4 # or models/Z-Image-Turbo/FP16
 
 ### Model Conversion Fails
 
-If model conversion fails:
+### Model Loading Fails
 
-1. Ensure you have enough RAM (32GB recommended)
-2. Check internet connection (downloads model from HuggingFace)
-3. Try with `USE_INT4_COMPRESSION=false` for FP16 conversion first
+If model loading fails:
+
+1. Ensure your OpenVINO model exists at the path specified in `MODEL_PATH`
+2. Check that the model directory contains required files (openvino_model.xml, etc.)
+3. Verify you have enough RAM for the model size
 
 ### Out of Memory
 
 If you encounter OOM errors:
 
-1. Use INT4 compression: `USE_INT4_COMPRESSION=true`
+1. Use INT4 model: `MODEL_PATH=models/Z-Image-Turbo/INT4`
 2. Reduce image size in generation requests
 3. Close other applications to free up memory
 

@@ -199,9 +199,8 @@ nano .env  # 或使用其他编辑器
 
 ```env
 # 模型配置
-MODEL_BASE_DIR=models              # 模型存储位置（相对于项目根目录）
-USE_INT4_COMPRESSION=true          # INT4 量化（推荐，节省内存）
-DEVICE=CPU                         # 运行设备：CPU / GPU / AUTO
+MODEL_PATH=models/Z-Image-Turbo/INT4  # OpenVINO 模型路径（INT4 或 FP16）
+DEVICE=CPU                             # 运行设备：CPU / GPU / AUTO
 
 # 服务配置
 API_HOST=0.0.0.0                  # 监听地址（0.0.0.0 = 所有网卡）
@@ -273,25 +272,21 @@ API_PORT=8080
 **错误：** `Out of memory`
 
 **解决：**
-1. 使用 INT4 量化：
+1. 使用 INT4 模型：
    ```env
-   USE_INT4_COMPRESSION=true
+   MODEL_PATH=models/Z-Image-Turbo/INT4
    ```
 2. 关闭其他程序释放内存
 3. 减小生成图片尺寸
 
-### 模型转换失败
+### 模型加载失败
 
-如果是轻量包首次运行转换失败：
+**错误：** `Failed to load model`
 
 **解决：**
-1. 检查网络连接
-2. 确保有足够内存（32GB+）
-3. 手动运行转换：
-   ```bash
-   source .venv/bin/activate  # Windows: .venv\Scripts\activate
-   python -c "from model_manager import initialize_model; initialize_model()"
-   ```
+1. 确认模型文件存在于配置的路径
+2. 检查模型目录包含必要文件（openvino_model.xml 等）
+3. 验证有足够内存加载模型
 
 ## 更新部署
 
@@ -313,16 +308,18 @@ cp .env.backup .env
 
 ### 更新模型
 
-如果要切换量化精度或重新转换模型：
+### 切换模型
+
+如果要在 INT4 和 FP16 之间切换：
 
 ```bash
-# 删除旧模型
-rm -rf models/Z-Image-Turbo
-
 # 修改配置
-nano .env  # 修改 USE_INT4_COMPRESSION
+nano .env  # 修改 MODEL_PATH
 
-# 重启（自动转换新模型）
+# 例如切换到 FP16：
+# MODEL_PATH=models/Z-Image-Turbo/FP16
+
+# 重启服务
 ./start.sh
 ```
 
@@ -399,8 +396,8 @@ server {
 
 ```env
 DEVICE=CPU
-# 使用 INT4 压缩
-USE_INT4_COMPRESSION=true
+# 使用 INT4 模型
+MODEL_PATH=models/Z-Image-Turbo/INT4
 ```
 
 ### GPU 优化
@@ -408,7 +405,7 @@ USE_INT4_COMPRESSION=true
 ```env
 DEVICE=GPU
 # 可以使用 FP16 获得更好质量
-USE_INT4_COMPRESSION=false
+MODEL_PATH=models/Z-Image-Turbo/FP16
 ```
 
 ### 并发处理
