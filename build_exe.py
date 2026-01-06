@@ -37,6 +37,7 @@ def create_pyinstaller_spec():
 
 import sys
 from pathlib import Path
+from PyInstaller.utils.hooks import collect_data_files
 
 block_cipher = None
 
@@ -65,6 +66,10 @@ datas = [
     ('.env.example', '.'),
 ]
 
+# Collect data files for libraries that need them
+datas += collect_data_files('rfc3987_syntax')
+datas += collect_data_files('jsonschema_specifications')
+
 a = Analysis(
     ['main.py'],
     pathex=[],
@@ -86,13 +91,17 @@ pyz = PYZ(a.pure, a.zipped_data, cipher=block_cipher)
 exe = EXE(
     pyz,
     a.scripts,
+    a.binaries,
+    a.zipfiles,
+    a.datas,
     [],
-    exclude_binaries=True,
     name='zimage-api',
     debug=False,
     bootloader_ignore_signals=False,
     strip=False,
     upx=True,
+    upx_exclude=[],
+    runtime_tmpdir=None,
     console=True,
     disable_windowed_traceback=False,
     argv_emulation=False,
@@ -100,17 +109,6 @@ exe = EXE(
     codesign_identity=None,
     entitlements_file=None,
     icon=None,
-)
-
-coll = COLLECT(
-    exe,
-    a.binaries,
-    a.zipfiles,
-    a.datas,
-    strip=False,
-    upx=True,
-    upx_exclude=[],
-    name='zimage-api',
 )
 """
 
@@ -143,20 +141,23 @@ def create_distribution_package(dist_dir: Path):
     logger.info("Creating distribution package...")
 
     # Source and destination paths
-    exe_dir = PROJECT_ROOT / "dist" / "zimage-api"
+    exe_file = PROJECT_ROOT / "dist" / "zimage-api.exe"
     package_dir = dist_dir / "zimage-turbo-api"
 
-    if not exe_dir.exists():
-        logger.error(f"Executable directory not found: {exe_dir}")
+    if not exe_file.exists():
+        logger.error(f"Executable not found: {exe_file}")
         return False
 
     # Remove existing package
     if package_dir.exists():
         shutil.rmtree(package_dir)
+    
+    # Create package directory
+    package_dir.mkdir(parents=True, exist_ok=True)
 
-    # Copy executable directory
+    # Copy executable
     logger.info(f"Copying executable to {package_dir}")
-    shutil.copytree(exe_dir, package_dir)
+    shutil.copy2(exe_file, package_dir / "zimage-api.exe")
 
     # Create models directory placeholder
     models_dir = package_dir / "models"

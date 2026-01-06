@@ -3,6 +3,14 @@ Main entry point for Z-Image-Turbo API server
 """
 import logging
 import sys
+import inspect
+
+# Monkey patch inspect.getsource to avoid errors with PyInstaller
+# transformers/utils/doc.py uses inspect.getsource which fails in frozen apps
+def _get_source_patch(obj):
+    return " "
+
+inspect.getsource = _get_source_patch
 
 import uvicorn
 
@@ -24,13 +32,15 @@ def main():
     logger.info(f"Device: {settings.DEVICE}")
     logger.info(f"Server: http://{settings.API_HOST}:{settings.API_PORT}")
     logger.info("=" * 60)
+    
+    # Import app here to avoid circular imports and ensure it's loaded for PyInstaller
+    from api import app
 
     try:
         uvicorn.run(
-            "api:app",
+            app,
             host=settings.API_HOST,
             port=settings.API_PORT,
-            reload=False,
             log_level="info"
         )
     except KeyboardInterrupt:

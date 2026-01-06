@@ -1,12 +1,19 @@
 """
 Configuration module for Z-Image-Turbo API
 """
+import sys
 from pathlib import Path
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
-# Get project root directory (where this config.py is located)
-PROJECT_ROOT = Path(__file__).parent.absolute()
+# Get project root directory
+if getattr(sys, 'frozen', False):
+    # Running in a bundle (PyInstaller)
+    # sys.executable is the path to the executable file
+    PROJECT_ROOT = Path(sys.executable).parent.absolute()
+else:
+    # Running in a normal Python environment
+    PROJECT_ROOT = Path(__file__).parent.absolute()
 
 
 class Settings(BaseSettings):
