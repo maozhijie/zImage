@@ -62,3 +62,5 @@ Thumbs.db
 *.tar.gz
 *.zip
 zimage-package/
+release/
+.trae/
