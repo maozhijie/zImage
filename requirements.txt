@@ -1,0 +1,32 @@
+--extra-index-url https://download.pytorch.org/whl/cpu
+
+# Core dependencies
+openvino>=2025.4
+torch==2.8
+torchvision==0.23.0
+nncf>=2.15.0    
+accelerate
+
+# Diffusers and Optimum Intel
+# Note: These should be installed from source for Z-Image-Turbo support
+# Install with: pip install git+https://github.com/huggingface/diffusers
+# Install with: pip install git+https://github.com/openvino-dev-samples/optimum-intel.git@zimage
+git+https://github.com/huggingface/diffusers
+git+https://github.com/openvino-dev-samples/optimum-intel.git@zimage
+
+# API framework
+fastapi>=0.104.0
+uvicorn[standard]>=0.24.0
+python-multipart>=0.0.6
+
+# Image processing
+Pillow>=10.0.0
+
+# Utils
+requests
+pydantic>=2.0.0
+pydantic-settings>=2.0.0
+python-dotenv>=1.0.0
+
+# CLI tools
+huggingface-hub>=0.20.0
