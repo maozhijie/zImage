@@ -20,9 +20,8 @@ def main():
     logger.info("=" * 60)
     logger.info("Z-Image-Turbo API Server")
     logger.info("=" * 60)
-    logger.info(f"Model ID: {settings.MODEL_ID}")
+    logger.info(f"Model Path: {settings.MODEL_PATH}")
     logger.info(f"Device: {settings.DEVICE}")
-    logger.info(f"INT4 Compression: {settings.USE_INT4_COMPRESSION}")
     logger.info(f"Server: http://{settings.API_HOST}:{settings.API_PORT}")
     logger.info("=" * 60)
 

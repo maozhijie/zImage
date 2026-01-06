@@ -15,10 +15,8 @@ print(f".env exists: {(PROJECT_ROOT / '.env').exists()}")
 print("\n" + "=" * 60)
 print("Model Settings")
 print("=" * 60)
-print(f"MODEL_ID: {settings.MODEL_ID}")
-print(f"MODEL_BASE_DIR: {settings.MODEL_BASE_DIR}")
-print(f"Model absolute path: {settings.get_model_base_dir()}")
-print(f"USE_INT4_COMPRESSION: {settings.USE_INT4_COMPRESSION}")
+print(f"MODEL_PATH: {settings.MODEL_PATH}")
+print(f"Model absolute path: {settings.get_model_path()}")
 print(f"DEVICE: {settings.DEVICE}")
 
 print("\n" + "=" * 60)
@@ -67,23 +65,27 @@ checks = []
 if env_file.exists():
     env_content = env_file.read_text()
 
-    if "DEVICE=GPU" in env_content:
+    if "DEVICE=CPU" in env_content:
+        if settings.DEVICE == "CPU":
+            checks.append(("✓", "DEVICE is CPU (from .env)"))
+        else:
+            checks.append(("✗", f"DEVICE is {settings.DEVICE} (expected CPU from .env)"))
+    elif "DEVICE=GPU" in env_content:
         if settings.DEVICE == "GPU":
             checks.append(("✓", "DEVICE is GPU (from .env)"))
         else:
             checks.append(("✗", f"DEVICE is {settings.DEVICE} (expected GPU from .env)"))
 
-    if "USE_INT4_COMPRESSION=true" in env_content:
-        if settings.USE_INT4_COMPRESSION:
-            checks.append(("✓", "USE_INT4_COMPRESSION is True (from .env)"))
-        else:
-            checks.append(("✗", "USE_INT4_COMPRESSION is False (expected True from .env)"))
-
-    if "MODEL_BASE_DIR=models" in env_content:
-        if settings.MODEL_BASE_DIR == "models":
-            checks.append(("✓", "MODEL_BASE_DIR is 'models' (from .env)"))
-        else:
-            checks.append(("✗", f"MODEL_BASE_DIR is {settings.MODEL_BASE_DIR} (expected 'models' from .env)"))
+    if "MODEL_PATH=" in env_content:
+        # Extract MODEL_PATH value from .env
+        for line in env_content.split('\n'):
+            if line.strip().startswith("MODEL_PATH="):
+                expected_path = line.split('=', 1)[1].strip()
+                if settings.MODEL_PATH == expected_path:
+                    checks.append(("✓", f"MODEL_PATH is '{expected_path}' (from .env)"))
+                else:
+                    checks.append(("✗", f"MODEL_PATH is {settings.MODEL_PATH} (expected '{expected_path}' from .env)"))
+                break
 
     for symbol, message in checks:
         print(f"{symbol} {message}")
