@@ -40,11 +40,33 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 
+def cleanup_generated_images():
+    """Clean up generated images from previous runs"""
+    try:
+        output_dir = settings.get_output_dir()
+        if output_dir.exists():
+            logger.info(f"Cleaning up old images in {output_dir}...")
+            count = 0
+            for file_path in output_dir.glob("*.png"):
+                try:
+                    file_path.unlink()
+                    count += 1
+                except Exception as e:
+                    logger.warning(f"Failed to delete {file_path.name}: {e}")
+            logger.info(f"Cleaned up {count} images")
+    except Exception as e:
+        logger.error(f"Error during cleanup: {e}")
+
+
 def main():
     """Start the API server"""
     logger.info("=" * 60)
     logger.info("Z-Image-Turbo API Server")
     logger.info("=" * 60)
+    
+    # Clean up old images
+    cleanup_generated_images()
+
     logger.info(f"Model Path: {settings.MODEL_PATH}")
     logger.info(f"Device: {settings.DEVICE}")
     logger.info(f"Server: http://{settings.API_HOST}:{settings.API_PORT}")
