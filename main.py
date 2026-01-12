@@ -3,6 +3,7 @@ Main entry point for Z-Image-Turbo API server
 """
 import logging
 import sys
+import os
 import inspect
 
 # Monkey patch inspect.getsource to avoid errors with PyInstaller
@@ -11,6 +12,22 @@ def _get_source_patch(obj):
     return " "
 
 inspect.getsource = _get_source_patch
+
+# Add openvino_libs to DLL search path for frozen app
+if getattr(sys, 'frozen', False):
+    base_path = sys._MEIPASS
+    # Check for OpenVINO libs in standard package location (collected via collect_all)
+    openvino_package_libs = os.path.join(base_path, 'openvino', 'libs')
+    if os.path.exists(openvino_package_libs):
+        os.add_dll_directory(openvino_package_libs)
+    
+    # Check for manually added libs (legacy)
+    openvino_libs_path = os.path.join(base_path, 'openvino_libs')
+    if os.path.exists(openvino_libs_path):
+        os.add_dll_directory(openvino_libs_path)
+        
+    # Also add base path just in case
+    os.add_dll_directory(base_path)
 
 import uvicorn
 

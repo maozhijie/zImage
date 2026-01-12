@@ -37,7 +37,7 @@ def create_pyinstaller_spec():
 
 import sys
 from pathlib import Path
-from PyInstaller.utils.hooks import collect_data_files
+from PyInstaller.utils.hooks import collect_data_files, collect_all
 
 block_cipher = None
 
@@ -53,8 +53,6 @@ hiddenimports = [
     'uvicorn.protocols.websockets.auto',
     'uvicorn.lifespan',
     'uvicorn.lifespan.on',
-    'openvino',
-    'openvino.runtime',
     'optimum.intel',
     'optimum.intel.openvino',
     'PIL',
@@ -70,11 +68,17 @@ datas = [
 datas += collect_data_files('rfc3987_syntax')
 datas += collect_data_files('jsonschema_specifications')
 
+# Collect all OpenVINO components
+tmp_ret = collect_all('openvino')
+datas += tmp_ret[0]
+binaries = tmp_ret[1]
+hiddenimports += tmp_ret[2]
+
 a = Analysis(
     ['main.py'],
-    pathex=[],
-    binaries=[],
-    datas=datas,
+        pathex=[],
+        binaries=binaries,
+        datas=datas,
     hiddenimports=hiddenimports,
     hookspath=[],
     hooksconfig={},
