@@ -2,6 +2,7 @@
 Configuration module for Z-Image-Turbo API
 """
 import sys
+import os
 from pathlib import Path
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
@@ -46,6 +47,11 @@ class Settings(BaseSettings):
 
     def get_model_path(self) -> Path:
         """Get absolute path to OpenVINO model directory"""
+        # Check for ZIMAGE_RESOURCE_DIR environment variable
+        resource_dir = os.environ.get("ZIMAGE_RESOURCE_DIR")
+        if resource_dir:
+            return Path(resource_dir) / "Z-Image-Turbo" / "INT4"
+
         model_path = Path(self.MODEL_PATH)
         if model_path.is_absolute():
             return model_path
